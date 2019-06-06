@@ -138,7 +138,9 @@ if [[ $# -gt 0 ]] ; then
     # Restore file descriptors
     exec 1>&13 13>&-
     exec 2>&14 14>&-
-    script -qa "$OUTFILE" -c "$*"
+    # Solution to quoting from
+    # https://stackoverflow.com/questions/1668649/#50367671
+    script -qa "$OUTFILE" -c "$(printf ' %q' "$@")"
     RET=$?
 
     echo >> $OUTFILE
