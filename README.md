@@ -81,6 +81,10 @@ sys.path:
 
 Script started on Thu 06 Jun 2019 02:15:40 PM EEST
 Python 3.6.8 :: Anaconda custom (64-bit)
+
+===== END =====
+
+Return code: 0
 ```
 
 

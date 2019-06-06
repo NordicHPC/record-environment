@@ -139,4 +139,10 @@ if [[ $# -gt 0 ]] ; then
     exec 1>&13 13>&-
     exec 2>&14 14>&-
     script -qa "$OUTFILE" -c "$*"
+    RET=$?
+
+    echo >> $OUTFILE
+    echo ===== END =====  >> $OUTFILE
+    echo  >> $OUTFILE
+    echo "Return code: $RET"  >> $OUTFILE
 fi
