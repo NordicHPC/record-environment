@@ -54,9 +54,9 @@ exec &>> $OUTFILE
 
 # Basic information
 echo 'record-output running at' "$(date)"
-whoami
-pwd
-hostname
+echo "Username: $(whoami)"
+echo "Working dir: $(pwd)"
+echo "Hostname: $(hostname)"
 
 echo
 echo '===== MODULES ====='

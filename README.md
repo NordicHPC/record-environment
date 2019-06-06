@@ -27,9 +27,9 @@ Python 3.6.8 :: Anaconda custom (64-bit)
 Contents of record-environment.out.txt (partial, some data removed):
 ```
 record-output running at Thu Jun  6 14:06:54 EEST 2019
-<username>
-<path-to>/record-environment
-<hostname>
+Username: <username>
+Working dir: <pwd>
+Hostname: <hostname>
 
 ===== MODULES =====
 
