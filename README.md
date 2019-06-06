@@ -1,5 +1,10 @@
 # record-environment: get key information from users to assist debugging
 
+A user submits an issue report, but doesn't include basic information.
+You take several rounds, asking for more and more information (the
+same information you ask from everyone).  Surely there is a better
+way?
+
 `record-environment` is a wrapper that runs a command, but saves the
 command line, output, relevant environment variables to a file.  This
 file can be sent along with support requests, to hopefully get all
@@ -10,6 +15,11 @@ relevant information the first time.
 
 
 ## Usage
+
+The `-p` option can be given to get more information on the Python
+environment, `-m` for Matlab environment, and `-x` for X11
+environment.  More such options should be added for other types of
+tasks (or maybe be made default, or automatic?).
 
 Sample invocation (`-p` means to record extra Python-related variables):
 
@@ -88,11 +98,29 @@ Return code: 0
 ```
 
 
+
+
+
 ## Installation and configuration
 
 This is a single shell script... just copy to an executable path.
 
 There is currently no configuration.
+
+
+
+
+
+## Privacy and security
+
+Since this gives info from the users environment, there *could* be
+something sensitive there.  That's why we try to be very specific in
+the types of data by default (and don't collect all environment
+variables).  Still, one should keep the risk of information leaks in
+mind when using this on a very large and public scale.
+
+
+
 
 
 ## Maintenance and development
