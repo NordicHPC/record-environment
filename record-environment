@@ -1,0 +1,142 @@
+#!/bin/bash
+#set -x
+
+OUTFILE=record-environment.out.txt
+
+#exec &> out.txt
+
+do_help() {
+cat <<EOF
+Usage: $0 [-h] [-p] [command]
+
+Use this script to record your execution environment and optionally
+a program, too.  Running this prints
+
+command   if given, run this command and also record this output.
+-p        record Python information
+-x        record graphical program information
+-m        record Matlab information
+-o file   save the output to this file
+-a        append logs, don't override
+EOF
+
+}
+
+while [[ $# -gt 0 ]]; do
+    key=$1
+    case $key in
+	-h) do_help ; exit 0  ;;
+	-a) APPEND=true   ;   shift   ;;
+	-m) MATLAB=true   ;   shift   ;;
+	-p) PYTHON=true   ;   shift   ;;
+	-x) X11=true      ;   shift   ;;
+	-v) set -x   ;;
+	-o) OUTPUTFILE=$2
+	    shift
+	    shift
+	    ;;
+	*) break
+	    ;;
+    esac
+done
+OUTPUT=" >> $OUTPUTFILE"
+
+if [[ -z "$APPEND" ]] ; then
+    rm "$OUTFILE"
+fi
+
+# Save old stdout and stderr, then redirect both to output file
+echo "Saving output to $OUTFILE"
+exec 13>&1
+exec 14>&2
+exec &>> $OUTFILE
+
+
+# Basic information
+echo 'record-output running at' "$(date)"
+whoami
+pwd
+hostname
+
+echo
+echo '===== MODULES ====='
+module list
+
+echo
+echo '===== QUOTA ====='
+/usr/bin/quota
+if test -e ~/.Xauthority ; then
+    echo "~/.Xauthority size=`stat --format='%s' ~/.Xauthority`."
+    if test `stat --format='%s' ~/.Xauthority` -lt 10 ; then
+	echo "WARNING: .Xauthority has size `stat --format='%s' ~/.Xauthority`.  Quota exceeded?"
+    fi
+fi
+
+echo
+echo '===== ENVIRONMENT (PARTIAL) ====='
+env | egrep -i '^[^=]*(path|lmod|modules|wrkdir|display)[^=]*=' | sort
+
+echo
+echo '===== SLURM ====='
+env | egrep -i '^[^=]*(slurm)[^=]*=' | sort
+
+if [ ! -z "$PYTHON" ] ; then
+    echo
+    echo '===== PYTHON path ====='
+    which python
+    which python2
+    which python3
+    which ipython
+    which ipython2
+    which ipython3
+    which pip
+    which conda
+    stat --format=%N ~/.conda
+    echo
+    env | egrep -i '^[^=]*(python|conda|venv|virtual)[^=]*=' | sort
+    echo
+    echo "sys.path:"
+    python -c 'import sys, pprint ; pprint.pprint(sys.path)'
+fi
+
+
+if [ ! -z "$MATLAB" ] ; then
+    echo
+    echo '===== MATLAB path ====='
+    which matlab
+    which matlab_multithread
+    which matlab-glselector.sh
+    stat --format=%N ~/.matlab
+    echo
+    env | egrep -i '^[^=]*(matlab)[^=]*=' | sort
+    echo
+    echo "matlab path:"
+    matlab -r 'path ; exit'
+fi
+
+if [ ! -z "$X11" ] ; then
+    echo
+    echo '===== X11 info ====='
+    echo '.Xauthority size:' `stat --format='%s' ~/.Xauthority`
+    env | egrep -i '^[^=]*(display)[^=]*=' | sort
+    echo
+    echo 'xauth list:'
+    xauth list | cut -d\  -f1-3 | sort
+    echo
+fi
+
+
+# If given, run a program using script to record it
+if [[ $# -gt 0 ]] ; then
+    echo
+    echo
+    echo
+    echo '===== RUNNING COMMAND ====='
+    echo "===== $@ ====="
+    echo
+
+    # Restore file descriptors
+    exec 1>&13 13>&-
+    exec 2>&14 14>&-
+    script -qa "$OUTFILE" -c "$*"
+fi
