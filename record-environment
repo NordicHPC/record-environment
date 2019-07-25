@@ -97,6 +97,18 @@ if [ ! -z "$PYTHON" ] ; then
     echo
     echo "sys.path:"
     python -c 'import sys, pprint ; pprint.pprint(sys.path)'
+    echo
+    echo "Key modules":
+    for python in python2 python3 ; do
+	for modname in numpy tensorflow keras pytorch ; do
+            $python -c "from __future__ import print_function
+try:
+    import $modname
+    print('    $python: $modname', $modname.__file__)
+except:
+    print('    $python: $modname not importable')"
+        done
+    done
 fi
 
 
